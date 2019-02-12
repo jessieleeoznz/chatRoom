@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>ChatRoom</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  </head>
+
+  <body>
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
+    <div id="wrapper">
+      <p id="messagewindow"><span id="loading">loading</span></p>
+      <form id="chatform" action="javascript:return undefined;">
+        name: <input type="text" id="author" name="name" size="50"><br />
+        content: <input type="text" id="msg" name="content" size="50"><br />
+        <input type="submit" id="submit" name="send" value="send" />
+        <button id="cancel" name="cancel" style="display: none">cancel</button>
+      </form>
+    </div>
+    <script src="/index.js"></script>
+  </body>
+
+</html>
