@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>ChatRoom</title>
   <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-
-<body>
   <script src="/node_modules/jquery/dist/jquery.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script>
-    var socket = io();
-  </script>
+</head>
+<body>
   <div id="wrapper">
     <div class="messageframe">
       <div class="messagewindow" id="messagewindow"><span id="loading">loading</span></div>
@@ -31,7 +25,7 @@
       <!-- </div> -->
     </div>
   </div>
+  <script src="/node_modules/socket.io/lib/socket.js"></script>
   <script src="/index.js"></script>
 </body>
-
 </html>

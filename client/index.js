@@ -141,5 +141,5 @@ $(function () {
       return false;
     }
   });
-
+  var socket = io();
 });

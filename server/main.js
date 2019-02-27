@@ -1,15 +1,45 @@
-let express = require('express');
 let bodyParser = require('body-parser');
 let mysql = require('mysql');
 
-let connection = mysql.createConnection({
+let express = require('express');
+let app = express();
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
+let port = 3025;
+
+var users = {};
+
+io.on('connection', function (socket) {
+  socket.join('subroom');
+
+  socket.on('add', (user) => {
+    users[user] = socket.id;
+    socket.me = user;
+    socket.to('subroom').emit('sub', `${user} has subscribed`);
+  });
+  socket.on('chat', function (to, msg) {
+    // for (const me in users) {
+    //   if (users.hasOwnProperty(me)) {
+    //     const socketId = users[me];
+    //     if (socketId === socket.id) {
+    //       socket.to(users[to]).emit('chat', me, msg);
+    //       return;
+    //     }
+    //   }
+    // }
+    const me = socket.me;
+    socket.to(users[to]).emit('chat', me, msg);
+  });
+});
+
+let db = mysql.createConnection({
   host: 'localhost',
   user: 'jessie',
   password: 'jsjsjs',
   database: 'jsdb'
 });
 
-connection.connect(function (err) {
+db.connect(function (err) {
   if (err) {
     return console.error('error: ' + err.message);
   }
@@ -17,22 +47,22 @@ connection.connect(function (err) {
   console.log('Connected to the MySQL server.');
 });
 
-
 function getAllMessages(req, res) {
-  connection.query("select * from messages des", function (err, messages) {
+  db.query("select * from messages des", function (err, messages) {
     if (err) {
       console.log("error:", err);
       res.send(err);
       return;
     }
-
     res.send(messages);
+    res.sendFile('/Users/jessie/workspace/jquery-demo/client/index.html');
+
   });
 }
 
 function getMessage(req, res) {
   let msgId = req.params.msgId;
-  connection.query("select * from messages where id = ?", msgId, function (err, messages) {
+  db.query("select * from messages where id = ?", msgId, function (err, messages) {
     if (err) {
       console.log("error:", err);
       res.send(err);
@@ -50,7 +80,7 @@ function createMessage(req, res) {
     msg: bodyMsg.msg,
     time: new Date(),
   };
-  connection.query("insert into messages set ?", message, function (err, result) {
+  db.query("insert into messages set ?", message, function (err, result) {
     if (err) {
       console.log("error:", err);
       res.send({ status: 'fail', result: err });
@@ -75,7 +105,7 @@ function updateMessage(req, res) {
     msg: bodyMsg.msg,
     time: new Date(),
   };
-  connection.query("update messages set ? where id = ?", [message, msgId], function (err, result) {
+  db.query("update messages set ? where id = ?", [message, msgId], function (err, result) {
     if (err) {
       console.log("error:", err);
       res.send(err);
@@ -83,7 +113,7 @@ function updateMessage(req, res) {
     }
     console.log('Rows affected:', result);
     if (result.affectedRows === 1) {
-      connection.query("select * from messages where id = ?", msgId, function (err, messages) {
+      db.query("select * from messages where id = ?", msgId, function (err, messages) {
         if (err) {
           console.log("error:", err);
           res.send(err);
@@ -101,14 +131,14 @@ function updateMessage(req, res) {
 
 function deleteMessage(req, res) {
   let msgId = req.params.msgId;
-  connection.query("delete from messages where id = ?", msgId, function (err, result) {
+  db.query("delete from messages where id = ?", msgId, function (err, result) {
     if (err) {
       console.log("error:", err);
       res.send(err);
       return;
     }
     if (result.affectedRows === 1) {
-      connection.query("select * from messages where id = ?", msgId, function (err, messages) {
+      db.query("select * from messages where id = ?", msgId, function (err, messages) {
         if (err) {
           console.log("error:", err);
           res.send(err);
@@ -124,7 +154,6 @@ function deleteMessage(req, res) {
 }
 
 
-let app = express();
 app.all('*', function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
   // res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -149,7 +178,8 @@ app.route('/message/:msgId')
 app.route("/healthz")
   .get(function (req, res) { res.send("I am jessie, I love gavin"); });
 
-let port = 9000;
-console.log("api server has started on port: " + port);
-app.listen(port);
+http.listen(port, () => {
+  console.log(`api server has started on port: ${port}`);
+});
+
 
