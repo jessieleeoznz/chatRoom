@@ -14,20 +14,18 @@ $(function () {
   function showMessages(messages) {
     $("#messagewindow").html("");
     messages.forEach(function (message) {
-      var htmlcode = `<div><button id="MSG-${message.id}">${message.user}</button><span id="messagecontent-${message.id}">${message.msg}</span></div>`;
+      var htmlcode = `<div class="record"><button id="MSG-${message.id}" name="record">${message.user}</button><span class="messagecontent" id="messagecontent-${message.id}">${message.msg}</span></div>`;
       $("#messagewindow").append(htmlcode);
+      let messageBody = document.querySelector('#messagewindow');
+      messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
     });
   }
   listAllMessages();
 
   function bindAllDeleteButton() {
-    $("button").click(function () {
+    $("button[name='record']").click(function () {
       let elementId = $(this).attr('id');
-      if (elementId === "cancel") {
-        return false;
-      } else {
-        deleteMsg(elementId);
-      }
+      deleteMsg(elementId);
     });
   }
 
@@ -60,7 +58,6 @@ $(function () {
         url: `http://${apiHost}:${port}/message/${msgId}`,
         type: 'DELETE',
       }).done(function (result) {
-        console.log(result);
         if (result.status.toUpperCase() === 'OK') {
           $("#" + elementId).parent().remove();
         }
@@ -77,17 +74,48 @@ $(function () {
       $("#author").val(userName);
       let msgText = $(`#${elementId}`).html();
       $("#msg").val(msgText);
-      $("#submit").val("update").attr("name", msgId);
       $("span").removeClass("editing");
       $(`#${elementId}`).addClass("editing");
-      $("#cancel").show().attr("name", msgId);
+      $("#send").attr("name", msgId);
     }
     return;
   }
 
-  $("#chatform").submit(function (e) {
-    e.preventDefault();
-    if ($("#submit").val() === "send") {
+  $("#new").click(function () {
+    $("span").removeClass("editing");
+    // $("#author").val("");
+    // $("#msg").val("");
+    $("#send").attr("name", "");
+    return false
+  });
+
+  $("#send").click(function () {
+    let msgId = $("#send").attr("name");
+    if (!!msgId && $(`#MSG-${msgId}`).length > 0) {
+      $.ajax({
+        url: `http://${apiHost}:${port}/message/${msgId}`,
+        type: 'PUT',
+        data: {
+          message: {
+            user: $("#author").val(),
+            msg: $("#msg").val()
+          }
+        }
+      }).done(function (result) {
+        if (result.status.toUpperCase() === 'OK') {
+          let buttonId = `MSG-${result.result.id}`;
+          let TextId = `messagecontent-${result.result.id}`;
+          $(`#${buttonId}`).html(result.result.user);
+          $(`#${TextId}`).html(result.result.msg);
+          $(`#messagecontent-${msgId}`).removeClass("editing");
+          $("#author").val("");
+          $("#msg").val("");
+          $("#send").attr("name", "");
+        }
+      });
+      return false;
+    }
+    else {
       $.ajax({
         url: `http://${apiHost}:${port}/messages`,
         method: 'POST',
@@ -99,59 +127,19 @@ $(function () {
         }
       }).done(function (result) {
         $("#msg").val("");
-        console.log(result);
         if (result.status.toUpperCase() === 'OK') {
           let buttonId = `MSG-${result.result.id}`;
           let TextId = `messagecontent-${result.result.id}`;
-          var htmlcode = `<div><button id="${buttonId}">${result.result.user}</button><span id="messagecontent-${result.result.id}">${result.result.msg}</span></div>`;
+          var htmlcode = `<div class="record"><button id="${buttonId}">${result.result.user}</button><span class="messagecontent" id="messagecontent-${result.result.id}">${result.result.msg}</span></div>`;
           $("#messagewindow").append(htmlcode);
+          let messageBody = document.querySelector('#messagewindow');
+          messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
           bindSingleDeleteButton(buttonId);
           bindSingleEditText(TextId);
-        }
-      });
-    }
-    if ($("#submit").val() === "update") {
-      let msgId = $("#submit").attr("name");
-      console.log("user is: " + $("#author").val());
-      console.log("msg is: " + $("#msg").val());
-      $.ajax({
-        url: `http://${apiHost}:${port}/message/${msgId}`,
-        type: 'PUT',
-        data: {
-          message: {
-            user: $("#author").val(),
-            msg: $("#msg").val()
-          }
-        }
-      }).done(function (result) {
-        console.log("result is: " + result);
-        $("#cancel").hide();
-        if (result.status.toUpperCase() === 'OK') {
-          console.log("result is: " + result);
-          console.log(`success to update this message: user = ${result.result.user},msg = ${result.result.msg}`);
-          let buttonId = `MSG-${result.result.id}`;
-          let TextId = `messagecontent-${result.result.id}`;
-          $(`#${buttonId}`).val(result.result.user);
-          $(`#${TextId}`).html(result.result.msg);
-          $(`#messagecontent-${msgId}`).removeClass("editing");
-          $("#author").val("");
-          $("#msg").val("");
-          $("#submit").val("send");
         }
       });
       return false;
     }
   });
-
-  $("#cancel").click(function () {
-    let msgId = $("#cancel").attr("name");
-    $(`#messagecontent-${msgId}`).removeClass("editing");
-    $("input#author").val("");
-    $("input#msg").val("");
-    console.log("sucess");
-    $("#cancel").attr("style", "display:none");
-    $("#submit").val("send");
-    return false;
-  })
 
 });

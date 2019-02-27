@@ -39,7 +39,6 @@ function getMessage(req, res) {
       return;
     }
     console.log("messages: ", messages);
-    // res.send(messages[0]);
     res.send(messages.length > 0 ? messages[0] : {});
   });
 }
@@ -57,11 +56,8 @@ function createMessage(req, res) {
       res.send({ status: 'fail', result: err });
       return;
     }
-    console.log(result);
-    console.log("id is: " + result.insertId);
     let idNum = result.insertId;
     message["id"] = idNum;
-    console.log(message);
 
     if (idNum) {
       res.send({ status: 'ok', result: message });
@@ -93,9 +89,8 @@ function updateMessage(req, res) {
           res.send(err);
           return;
         }
-        console.log("messages: ", messages);
         res.send(messages.length > 0 ? { status: 'ok', result: messages[0] } : { status: 'fail' });
-        console.log("message[0] is: " + JSON.stringify(messages[0]));
+        //console.log("message[0] is: " + JSON.stringify(messages[0]));
         return;
       });
       return;
@@ -112,7 +107,6 @@ function deleteMessage(req, res) {
       res.send(err);
       return;
     }
-    //console.log('Rows affected:', result);
     if (result.affectedRows === 1) {
       connection.query("select * from messages where id = ?", msgId, function (err, messages) {
         if (err) {
@@ -120,8 +114,6 @@ function deleteMessage(req, res) {
           res.send(err);
           return;
         }
-        //console.log("messages: ", messages);
-        // res.send(messages[0]);
         res.send(messages.length == 0 ? { status: 'ok', result: messages[0] } : { status: 'fail' });
         return;
       });
@@ -153,9 +145,6 @@ app.route('/message/:msgId')
   .get(getMessage)
   .put(updateMessage)
   .delete(deleteMessage);
-
-// app.route('/messageid')
-//   .get(getMessageId);
 
 app.route("/healthz")
   .get(function (req, res) { res.send("I am jessie, I love gavin"); });
