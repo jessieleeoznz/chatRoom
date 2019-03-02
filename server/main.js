@@ -17,7 +17,7 @@ io.on('connection', function (socket) {
     socket.me = user;
     socket.to('subroom').emit('sub', `${user} has subscribed`);
   });
-  socket.on('chat', function (to, msg) {
+  socket.on('chat', (to, id, msg)=>{
     // for (const me in users) {
     //   if (users.hasOwnProperty(me)) {
     //     const socketId = users[me];
@@ -26,11 +26,17 @@ io.on('connection', function (socket) {
     //       return;
     //     }
     //   }
-    // }
+    // 
     const me = socket.me;
-    socket.to(users[to]).emit('chat', me, msg);
-  });
-});
+    if (to === "all") {
+      socket.to('subroom').emit('chat', me, id, msg);
+    } else {
+      socket.to(users[to]).emit('chat', me, id, msg);
+    }
+  })
+
+})
+
 
 let db = mysql.createConnection({
   host: 'localhost',
