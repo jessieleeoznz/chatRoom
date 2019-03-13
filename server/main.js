@@ -17,7 +17,7 @@ io.on('connection', function (socket) {
     socket.me = user;
     socket.to('subroom').emit('sub', `${user} has subscribed`);
   });
-  socket.on('chat', (to, id, msg)=>{
+  socket.on('chat', (to, id, msg, action)=>{
     // for (const me in users) {
     //   if (users.hasOwnProperty(me)) {
     //     const socketId = users[me];
@@ -29,9 +29,9 @@ io.on('connection', function (socket) {
     // 
     const me = socket.me;
     if (to === "all") {
-      socket.to('subroom').emit('chat', me, id, msg);
+      socket.to('subroom').emit('chat', me, id, msg, action);
     } else {
-      socket.to(users[to]).emit('chat', me, id, msg);
+      socket.to(users[to]).emit('chat', me, id, msg, action);
     }
   })
 
@@ -180,7 +180,6 @@ app.route('/message/:msgId')
   .get(getMessage)
   .put(updateMessage)
   .delete(deleteMessage);
-
 app.route("/healthz")
   .get(function (req, res) { res.send("I am jessie, I love gavin"); });
 

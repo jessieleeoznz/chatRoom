@@ -3,9 +3,11 @@ bbbs sindustries--
 
 
 (?:[a-zA-Z]+[a-zA-Z0-9-]*[^\-]$|[0-9]+[a-zA-Z-]+[0-9]*[^\-]$)^[\.][a-zA-Z0-9\-]
-
-^([a-zA-Z0-9]+(?:[\.][a-zA-Z0-9]+)*){64}
+^([a-zA-Z0-9]+(?:[\.][a-zA-Z0-9]+)*){0,64}
 ^(?:["][a-zA-Z0-9.]+["]|[a-zA-Z0-9]+(?:[\.][a-zA-Z0-9]+)*@(?:[a-zA-Z]+[a-zA-Z0-9-]*[^-]$|[0-9]+[a-zA-Z-]+[0-9]*[^-]$)(?:^[\.][a-zA-Z0-9-]+[^-]$)*
+
+^[\w]+(?:[\.][\w]+)*@[a-zA-Z0-9]*[a-zA-Z]([\-][a-zA-Z0-9]+)*(?:[\.][a-zA-Z0-9]+([\-])?[a-zA-Z0-9]+)*
+
 
 vslid:
 simple@example.com
@@ -15,7 +17,7 @@ other.email-with-hyphen@example.com
 fully-qualified-domain@example.com
 user.name+tag+sorting@example.com (may go to user.name@example.com inbox depending on mail server)
 x@example.com (one-letter local-part)
-example-indeed@strange-example.com
+exampleindeed@strange-example.com
 admin@mailserver1 (local domain name with no TLD, although ICANN highly discourages dotless email addresses)
 example@s.example (see the List of Internet top-level domains)
 " "@example.org (space between the quotes)
